@@ -2,6 +2,7 @@ package receiver
 
 import (
 	"log"
+	"os"
 
 	"backend/concurrency/websocket/connect"
 
@@ -16,8 +17,12 @@ func FailOnError(err error, msg string) {
 	}
 }
 
-func Receive() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+func Receive() { // Ensure that you are getting the correct environment variable
+	rabbitMQURL := os.Getenv("RABBITMQ_URL")
+	if rabbitMQURL == "" {
+		rabbitMQURL = "amqp://guest:guest@localhost:5672/"
+	}
+	conn, err := amqp.Dial(rabbitMQURL)
 	FailOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 

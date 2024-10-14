@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"os"
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -20,8 +21,12 @@ func failOnError(err error, msg string) {
 	}
 }
 
-func Send(body []byte) {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+func Send(body []byte) { // Ensure that you are getting the correct environment variable
+	rabbitMQURL := os.Getenv("RABBITMQ_URL")
+	if rabbitMQURL == "" {
+		rabbitMQURL = "amqp://guest:guest@localhost:5672/" // Default value if env variable is not set
+	}
+	conn, err := amqp.Dial(rabbitMQURL)
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
