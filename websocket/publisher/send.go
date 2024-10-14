@@ -3,6 +3,7 @@ package publisher
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -22,9 +23,17 @@ func failOnError(err error, msg string) {
 }
 
 func Send(body []byte) { // Ensure that you are getting the correct environment variable
+	rabbitMQDefaultUser := os.Getenv("RABBITMQ_DEFAULT_USER")
+	if rabbitMQDefaultUser == "" {
+		rabbitMQDefaultUser = "guest"
+	}
+	rabbitMQDefaultPass := os.Getenv("RABBITMQ_DEFAULT_PASS")
+	if rabbitMQDefaultPass == "" {
+		rabbitMQDefaultPass = "guest"
+	}
 	rabbitMQURL := os.Getenv("RABBITMQ_URL")
 	if rabbitMQURL == "" {
-		rabbitMQURL = "amqp://guest:guest@localhost:5672/" // Default value if env variable is not set
+		rabbitMQURL = fmt.Sprintf("amqp://%s:%s@localhost:5672/", rabbitMQDefaultUser, rabbitMQDefaultPass)
 	}
 	conn, err := amqp.Dial(rabbitMQURL)
 	failOnError(err, "Failed to connect to RabbitMQ")

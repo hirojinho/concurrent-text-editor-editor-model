@@ -1,6 +1,7 @@
 package receiver
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -18,9 +19,17 @@ func FailOnError(err error, msg string) {
 }
 
 func Receive() { // Ensure that you are getting the correct environment variable
+	rabbitMQDefaultUser := os.Getenv("RABBITMQ_DEFAULT_USER")
+	if rabbitMQDefaultUser == "" {
+		rabbitMQDefaultUser = "guest"
+	}
+	rabbitMQDefaultPass := os.Getenv("RABBITMQ_DEFAULT_PASS")
+	if rabbitMQDefaultPass == "" {
+		rabbitMQDefaultPass = "guest"
+	}
 	rabbitMQURL := os.Getenv("RABBITMQ_URL")
 	if rabbitMQURL == "" {
-		rabbitMQURL = "amqp://guest:guest@localhost:5672/"
+		rabbitMQURL = fmt.Sprintf("amqp://%s:%s@localhost:5672/", rabbitMQDefaultUser, rabbitMQDefaultPass)
 	}
 	conn, err := amqp.Dial(rabbitMQURL)
 	FailOnError(err, "Failed to connect to RabbitMQ")
